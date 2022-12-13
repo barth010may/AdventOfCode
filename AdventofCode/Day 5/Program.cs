@@ -18,6 +18,7 @@ namespace Day_5
             Stack seven = new Stack();
             Stack eight = new Stack();
             Stack nine = new Stack();
+            Stack temp = new Stack();
 
             char[] oneArray = { 'R', 'G', 'J', 'B', 'T', 'V', 'Z'};
             char[] twoArray = { 'J', 'R', 'V', 'L'};
@@ -46,13 +47,13 @@ namespace Day_5
             PushArray(eight, eightArray);
             PushArray(nine, nineArray);
 
-            Stack[] stacks = { one, two, three, four, five, six, seven, eight, nine };
+            Stack[] stacks = { one, two, three, four, five, six, seven, eight, nine, temp };
 
-            string text = File.ReadAllText(@"C:\Users\Borup\AdventOfCode\AdventofCode\Day 5\puzzleinput.txt");
+            string text = File.ReadAllText(@"C:\Users\Borup\C#\AdventOfCode\AdventofCode\Day 5\puzzleinput.txt");
 
             string[] lines = text.Split("\r\n");
 
-            foreach (string line in lines) {
+            /*foreach (string line in lines) {
                 string[] splitString = line.Split(' ');
                 int amountMoved = int.Parse(splitString[1]);
                 int fromStack = int.Parse(splitString[3]);
@@ -64,6 +65,28 @@ namespace Day_5
             }
 
             Console.WriteLine("Answer to Part 1: " + one.Peek() + two.Peek() + three.Peek() + four.Peek() + five.Peek() + six.Peek() + seven.Peek() + eight.Peek() + nine.Peek());
+            */
+
+            // DAY 5, PART 2
+            // List the top letters in each stack, with a different ordering procedure
+
+            foreach (string line in lines) {
+                string[] splitString = line.Split(' ');
+                int amountMoved = int.Parse(splitString[1]);
+                int fromStack = int.Parse(splitString[3]);
+                int toStack = int.Parse(splitString[5]);
+
+                for (int i = 0; i < amountMoved; i++) {
+                    temp.Push(stacks[fromStack - 1].Pop());
+                }
+                for (int i = 0; i < amountMoved; i++) {
+                    stacks[toStack - 1].Push(temp.Pop());
+                }
+            }
+
+            Console.WriteLine("Answer to Part 2: " + one.Peek() + two.Peek() + three.Peek() + four.Peek() + five.Peek() + six.Peek() + seven.Peek() + eight.Peek() + nine.Peek());
+
+
         }
     }
 }
