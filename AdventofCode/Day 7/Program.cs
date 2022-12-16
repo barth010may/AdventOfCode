@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.Design;
 using System.Diagnostics.Metrics;
 using System.Security;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Day_7
 {
@@ -16,8 +17,6 @@ namespace Day_7
 
             // DAY 7, PART 1
             // Find the sum of all the directories that contain up to 100.000 bytes
-
-            int counter = 0;
 
             CreateFileSystem();
 
@@ -36,17 +35,97 @@ namespace Day_7
 
                 List<string> directoryList = new List<string>();
 
-                int sum = 0;
                 int totalsum = 0;
+                int spaceNeeded = 0;
+                int currentSmallestSum = 1000000000;
 
-                // find all the directories which contain 100000 bytes 
+                // find the total sum of the directory
                 foreach (string directory in directories)
                 {
-                    totalsum = WalkDirectoryTree(directory, directoryList);
+                    totalsum += WalkDirectoryTree(directory, false, spaceNeeded, directoryList, false, currentSmallestSum);
                 }
+                totalsum += 272080 + 6067;
+
+                Console.WriteLine("Total sum : " + totalsum);
+
+                int UnusedSpace = 70000000 - totalsum;
+
+                spaceNeeded = 30000000 - UnusedSpace;
+
+                Console.WriteLine("Space Needed: " + spaceNeeded);
+
+                // Find the list of directories that count more than the spaceNeeded
+                foreach (string directory in directories) 
+                {
+                    totalsum += WalkDirectoryTree(directory, true, spaceNeeded, directoryList, false, currentSmallestSum);
+                }
+
+                List<int> listOfSums = new List<int>();
+                // Find the sum of the smallest directory out of the qualified list
+                foreach (string directory in directoryList) 
+                {
+                    listOfSums.Add(WalkDirectoryTree(directory, false, spaceNeeded, directoryList, true, currentSmallestSum));
+                }
+
+                int Smallest = 100000000;
+                foreach (int sum in listOfSums) {
+                    Console.WriteLine(sum);
+                    if (sum <= Smallest) {
+                        Smallest = sum;
+                    }
+                }
+
+                Console.WriteLine("THE ANSWER IS TO PART 2: " + Smallest);
             }
 
-            void FindSumOfDirs()
+            int WalkDirectoryTree(string dir, bool checker, int spaceNeeded, List<string> directoryList, bool flag, int currentSmallestSum)
+            {
+
+                Directory.SetCurrentDirectory(dir);
+                //Console.WriteLine(Directory.GetCurrentDirectory());
+
+                string[] files = Directory.GetFiles(Directory.GetCurrentDirectory());
+
+                int localsum = 0;
+
+                // iterate through files in working directory
+                foreach (string file in files) {
+                    string fileName = Path.GetFileName(file);
+                    //Console.WriteLine(fileName);
+                    if (fileName.Split(' ') != null) {
+                        string[] substrings = fileName.Split(' ');
+                        int number = int.Parse(substrings[0]);
+
+                        localsum += number;
+                    }
+                }
+
+                // check for subdirectories and iterate process on them
+                string[] subdirs = Directory.GetDirectories(Directory.GetCurrentDirectory());
+
+                if (subdirs != null) {
+                    foreach (string subdir in subdirs) {
+                        localsum += WalkDirectoryTree(subdir, checker, spaceNeeded, directoryList, flag, currentSmallestSum);
+                    }
+                }
+
+                if (checker) {
+                    if (localsum >= spaceNeeded) {
+                        directoryList.Add(dir);
+                    }
+                }
+
+                if (flag) {
+                    if (localsum <= currentSmallestSum) {
+                        currentSmallestSum = localsum;
+                    }
+                }
+                
+
+                return localsum;
+            }
+
+            /*void FindSumOfDirs()
             {
                 Directory.SetCurrentDirectory(@"C:\Users\Borup\AdventOfCode\AdventofCode\Day 7\main");
 
@@ -56,11 +135,12 @@ namespace Day_7
 
                 int sum = 0;
                 int totalsum = 0;
-
+                bool checker = true;
+                int spaceNeeded = 100000;
                 // find all the directories which contain 100000 bytes 
                 foreach (string directory in directories)
                 {
-                    totalsum = WalkDirectoryTree(directory, directoryList);  
+                    totalsum = WalkDirectoryTree(directory, checker, spaceNeeded, directoryList);  
                 }
                 foreach (string dir in directoryList)
                 {
@@ -78,48 +158,9 @@ namespace Day_7
                 }
                 Console.WriteLine("Total Sum : " + sum);
 
-            }
+            }*/
 
-            int WalkDirectoryTree(string dir, List<string> directoryList)
-            {
 
-                Directory.SetCurrentDirectory(dir);
-
-                string[] files = Directory.GetFiles(Directory.GetCurrentDirectory());
-                    
-                int localsum = 0;
-
-                // iterate through files in working directory
-                foreach (string file in files)
-                {
-                    string fileName = Path.GetFileName(file);
-                    if (fileName.Split(' ') != null)
-                    {
-                        string[] substrings = fileName.Split(' ');
-                        int number = int.Parse(substrings[0]);
-
-                        localsum += number;
-                    }
-                }
-
-                // check for subdirectories and iterate process on them
-                string[] subdirs = Directory.GetDirectories(Directory.GetCurrentDirectory());
-                
-                if (subdirs != null)
-                {
-                    foreach (string subdir in subdirs)
-                    {
-                        localsum += WalkDirectoryTree(subdir, directoryList);
-                    }
-                }
-
-                if (localsum <= 100000)
-                {
-                    directoryList.Add(Directory.GetCurrentDirectory());
-                }
-
-                return localsum;
-            }
 
 
             void CreateFileSystem()
