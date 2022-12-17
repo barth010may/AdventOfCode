@@ -49,7 +49,6 @@
 
             static bool uniqueCharacters(String str)
             {
-
                 // If at any time we encounter 2
                 // same characters, return false
                 for (int i = 0; i < str.Length; i++)
@@ -61,9 +60,6 @@
                 // encountered, return true
                 return true;
             }
-
-
-
         }
     }
 }
