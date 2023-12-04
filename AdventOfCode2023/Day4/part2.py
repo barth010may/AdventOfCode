@@ -13,9 +13,9 @@ Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11""".split("\n")
 sum = 0
 dict = {}   
 dict_copies = {}    
-for row in range(len(example_input)):
+for row in range(len(puzzleInput)):
 
-    input_halfed = example_input[row].split("|")
+    input_halfed = puzzleInput[row].split("|")
     input_halfed2 = input_halfed[0].split(":")
     
     winning_numbers = re.findall("[\d]+", input_halfed2[1])
@@ -30,11 +30,16 @@ for row in range(len(example_input)):
     
     #print(f"wins in Card {row+1}: {counter}")
     
-original = 1
-copy = 1
-    
+def get_amount_of_copies(dict, original):
+    if dict[f"{original}"] == 0:
+        return 1
+    sum = 0
+    for i in range(original, original + int(dict[f"{original}"])):
+        print(i)
+        sum += get_amount_of_copies(dict, i+1)
+    return sum + 1
+
 for i in dict:
-    for j in range(dict[i]):
-        pass
+    sum += get_amount_of_copies(dict, int(i))
     
-#print(f"total sum = {sum}")
+print(f"total sum = {sum}")
